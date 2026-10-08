@@ -47,6 +47,7 @@ func DecodeOne(data []byte) (interface{}, int, error) {
 	case '-': // error
 		return readError(data)
 	}
+	return nil, 0, nil
 }
 
 func Decode(data []byte) (interface{}, error) {
