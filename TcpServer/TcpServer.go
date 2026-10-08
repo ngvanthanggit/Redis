@@ -1,63 +1,43 @@
 package main
 
 import (
-	"bufio"
-	"fmt"
 	"io"
 	"log"
 	"net"
-	"net/http"
-	"time"
 )
+
+func readCommand(conn net.Conn) (string, error) {
+	buf := make([]byte, 512)
+	n, err := conn.Read(buf[:])
+	if err != nil {
+		return "", err
+	}
+	return string(buf[:n]), nil
+}
+
+func respond(cmd string, conn net.Conn) error {
+	if _, err := conn.Write([]byte(cmd)); err != nil {
+		return err
+	}
+	return nil
+}
 
 func handleConnection(conn net.Conn) {
 	defer conn.Close()
 
 	log.Println(conn.RemoteAddr())
 
-	reader := bufio.NewReader(conn)
-
-	requestCount := 0
 	for {
-		request, err := http.ReadRequest(reader)
+		cmd, err := readCommand(conn)
 		if err != nil {
-			if err != io.EOF {
-				log.Println(err)
+			conn.Close()
+			log.Println("client disconnected", conn.RemoteAddr())
+			if err == io.EOF {
+				break
 			}
-			return // Client disconnected or send invalid request
 		}
-		requestCount += 1
-
-		io.Copy(io.Discard, request.Body)
-		request.Body.Close()
-
-		time.Sleep(time.Second * 5)
-
-		body := fmt.Sprintf("Hello World %d\r\n", requestCount)
-		connection := "keep-alive"
-
-		if request.Close {
-			connection = "close"
-		}
-
-		response := fmt.Sprintf(
-			"HTTP/1.1 200 OK\r\n"+
-				"Content-Length: %d\r\n"+
-				"Content-Type: text/plain\r\n"+
-				"Connection: %s\r\n"+
-				"\r\n"+
-				"%s",
-			len(body),
-			connection,
-			body,
-		)
-
-		if _, err := conn.Write([]byte(response)); err != nil {
-			return // Cliend disconnected while receiving the response
-		}
-
-		if request.Close {
-			return // Client requested Connection: close
+		if err = respond(cmd, conn); err != nil {
+			log.Println("err write: ", err)
 		}
 	}
 }
