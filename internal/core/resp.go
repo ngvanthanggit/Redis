@@ -3,12 +3,11 @@ package core
 import (
 	"bytes"
 	"fmt"
+	"ngvanthanggit/internal/constant"
 	"strings"
 )
 
 const CRLF string = "\r\n"
-
-var RespNil = []byte("$-1\r\n")
 
 func readLen(data []byte) (int, int) {
 	res, pos, _ := readInt64(data)
@@ -187,7 +186,7 @@ func Encode(value interface{}, isSimpleString bool) []byte {
 	case error:
 		return fmt.Appendf(nil, "-%s%s", v, CRLF)
 	default:
-		return RespNil
+		return constant.RespNil
 	}
 }
 
