@@ -5,21 +5,27 @@ import (
 	"log"
 	"net"
 	"ngvanthanggit/internal/config"
+	"ngvanthanggit/internal/core"
 	"ngvanthanggit/internal/core/io_multiplexing"
 	"syscall"
 )
 
-func readCommand(fd int) (string, error) {
+func readCommand(fd int) (*core.Command, error) {
 	var buf = make([]byte, 512)
 	n, err := syscall.Read(fd, buf)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	// 0 bytes were read
 	if n == 0 {
-		return "", io.EOF
+		return nil, io.EOF
 	}
-	return string(buf[:n]), nil
+	// parse the command here using the resp.ParseCmd(buf)
+	cmd, err := core.ParseCmd(buf)
+	if err != nil {
+		return nil, err
+	}
+	return cmd, nil
 }
 
 func respond(data string, fd int) error {
@@ -112,7 +118,12 @@ func RunIoMultiplexingServer() {
 					continue
 				}
 
-				if err = respond(cmd, events[i].Fd); err != nil {
+				// if err = respond(cmd, events[i].Fd); err != nil {
+				// 	log.Fatal(err)
+				// }
+
+				// instead, we can use the executor.ExecuteAndResponse(cmd, events[i].Fd) here
+				if err := core.ExecuteAndResponse(cmd, events[i].Fd); err != nil {
 					log.Fatal(err)
 				}
 			}
