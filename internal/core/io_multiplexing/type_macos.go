@@ -4,10 +4,28 @@ package io_multiplexing
 
 import "syscall"
 
-func (e Event) toNative() syscall.Kevent_t {
-	return syscall.Kevent_t{}
+func (e Event) toNative(flags uint16) syscall.Kevent_t {
+	var filter int16
+	switch e.Op {
+	case OpWrite:
+		filter = syscall.EVFILT_WRITE
+	case OpRead:
+		filter = syscall.EVFILT_READ
+	}
+	return syscall.Kevent_t{
+		Ident:  uint64(e.Fd),
+		Filter: filter,
+		Flags:  flags,
+	}
 }
 
 func createEvent(kq syscall.Kevent_t) Event {
-	return Event{}
+	var op Operation = OpWrite
+	if kq.Filter == syscall.EVFILT_READ {
+		op = OpRead
+	}
+	return Event{
+		Fd: int(kq.Ident),
+		Op: op,
+	}
 }

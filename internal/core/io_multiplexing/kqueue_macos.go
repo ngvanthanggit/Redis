@@ -29,13 +29,22 @@ func CreateIOMultiplexer() (*KQueue, error) {
 }
 
 func (kq *KQueue) Monitor(event Event) error {
-	return nil
+	kqEvent := event.toNative(syscall.EV_ADD)
+	_, err := syscall.Kevent(kq.fd, []syscall.Kevent_t{kqEvent}, nil, nil)
+	return err
 }
 
 func (kq *KQueue) Wait() ([]Event, error) {
-	return nil, nil
+	n, err := syscall.Kevent(kq.fd, nil, kq.kqEvents, nil)
+	if err != nil {
+		return nil, err
+	}
+	for i := range n {
+		kq.genericEvents[i] = createEvent(kq.kqEvents[i])
+	}
+	return kq.genericEvents[:n], nil
 }
 
 func (kq *KQueue) Close() error {
-	return nil
+	return syscall.Close(kq.fd)
 }

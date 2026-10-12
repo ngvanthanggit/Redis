@@ -58,6 +58,15 @@ func RunIoMultiplexingServer() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer ioMultiplexer.Close()
+
+	// Monitor 'read' events from the Server FD
+	if err = ioMultiplexer.Monitor(io_multiplexing.Event{
+		Fd: serverFd,
+		Op: io_multiplexing.OpRead,
+	}); err != nil {
+		log.Fatal(err)
+	}
 
 	var events = make([]io_multiplexing.Event, config.MaxConnection)
 	for {

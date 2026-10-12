@@ -29,13 +29,22 @@ func CreateIOMultiplexer() (*Epoll, error) {
 }
 
 func (ep *Epoll) Monitor(event Event) error {
-	return nil
+	// add a new event to the list
+	epollEvent := event.toNative()
+	return syscall.EpollCtl(ep.fd, syscall.EPOLL_CTL_ADD, event.Fd, &epollEvent)
 }
 
 func (ep *Epoll) Wait() ([]Event, error) {
-	return nil, nil
+	n, err := syscall.EpollWait(ep.fd, ep.epollEvents, -1)
+	if err != nil {
+		return nil, err
+	}
+	for i := range n {
+		ep.genericEvents[i] = createEvent(ep.epollEvents[i])
+	}
+	return ep.genericEvents[:n], nil
 }
 
 func (ep *Epoll) Close() error {
-	return nil
+	return syscall.Close(ep.fd)
 }
