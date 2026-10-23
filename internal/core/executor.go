@@ -2,7 +2,10 @@ package core
 
 import (
 	"fmt"
+	"ngvanthanggit/internal/constant"
+	"strconv"
 	"syscall"
+	"time"
 )
 
 func cmdPING(args []string) []byte {
@@ -19,12 +22,82 @@ func cmdPING(args []string) []byte {
 	return res
 }
 
+func cmdSET(args []string) []byte {
+	if len(args) < 2 {
+		return Encode(ErrNumberOfArgs, false)
+	}
+
+	// process the arguments
+	// SET key value EX ttl
+	var key, value string
+	var ttlMs int64
+	key, value = args[0], args[1]
+	ttlMs = -1 // default if not specified
+
+	if len(args) > 2 {
+		if len(args) < 4 {
+			return Encode(ErrNumberOfArgs, false)
+		}
+		ttlSec, err := strconv.ParseInt(args[3], 10, 64)
+		if err != nil {
+			return Encode(err, false)
+		}
+
+		ttlMs = ttlSec * 1000
+	}
+
+	dictStore.Set(key, dictStore.NewObj(key, value, ttlMs))
+
+	return constant.RespOk
+}
+
+func cmdGET(args []string) []byte {
+	if len(args) < 1 {
+		return Encode(ErrNumberOfArgs, false)
+	}
+
+	key := args[0]
+	value := dictStore.Get(key)
+	if value == nil {
+		return constant.RespNil
+	}
+
+	return Encode(value.Value, false)
+}
+
+func cmdTTL(args []string) []byte {
+	if len(args) < 1 {
+		return Encode(ErrNumberOfArgs, false)
+	}
+
+	key := args[0]
+	if dictStore.HasExpired(key) {
+		return Encode(-2, false)
+	}
+
+	exp, exist := dictStore.GetExpiry(key)
+	if !exist {
+		return Encode(-1, false)
+	}
+
+	ttlMs := exp - uint64(time.Now().UnixMilli())
+	ttlSec := uint64(ttlMs / 1000)
+
+	return Encode(ttlSec, false)
+}
+
 func ExecuteAndResponse(cmd *Command, connFd int) error {
 	var res []byte
 
 	switch cmd.Cmd {
 	case "PING":
 		res = cmdPING(cmd.Args)
+	case "SET":
+		res = cmdSET(cmd.Args)
+	case "GET":
+		res = cmdGET(cmd.Args)
+	case "TTL":
+		res = cmdTTL(cmd.Args)
 	default:
 		res = Encode(fmt.Errorf("ERR unknown command '%s'", cmd.Cmd), false)
 	}

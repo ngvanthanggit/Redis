@@ -164,7 +164,7 @@ func Encode(value interface{}, isSimpleString bool) []byte {
 		}
 		// return []byte(fmt.Sprintf("$%d%s%s%s", len(v), CRLF, v, CRLF)) -> not optimized
 		return encodeString(v)
-	case int64, int32, int16, int8, int:
+	case uint64, uint32, uint16, uint8, uint, int64, int32, int16, int8, int:
 		return fmt.Appendf(nil, ":%d%s", v, CRLF)
 	case []string:
 		return encodeStringArray(value.([]string))
