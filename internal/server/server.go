@@ -5,9 +5,11 @@ import (
 	"log"
 	"net"
 	"ngvanthanggit/internal/config"
+	"ngvanthanggit/internal/constant"
 	"ngvanthanggit/internal/core"
 	"ngvanthanggit/internal/core/io_multiplexing"
 	"syscall"
+	"time"
 )
 
 func readCommand(fd int) (*core.Command, error) {
@@ -74,8 +76,14 @@ func RunIoMultiplexingServer() {
 		log.Fatal(err)
 	}
 
+	lastActiveExpireExecTime := time.Now()
+
 	var events = make([]io_multiplexing.Event, config.MaxConnection)
 	for {
+		if time.Now().After(lastActiveExpireExecTime.Add(constant.ActiveExpireFrequency)) {
+			core.ActiveDeleteExpiredKeys()
+			lastActiveExpireExecTime = time.Now()
+		}
 		// wait for at least one FD in the monitoring list to be ready for I/O
 		// this is a blocking call
 		events, err = ioMultiplexer.Wait()

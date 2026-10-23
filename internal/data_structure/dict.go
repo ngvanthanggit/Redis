@@ -84,7 +84,7 @@ func (d *Dict) Get(key string) *Obj {
 	if v != nil {
 		if d.HasExpired(key) {
 			// passive deletion
-			d.Del(key)
+			// d.Del(key)
 			return nil
 		}
 		return v

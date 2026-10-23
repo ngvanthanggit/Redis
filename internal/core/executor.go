@@ -35,7 +35,7 @@ func cmdSET(args []string) []byte {
 	ttlMs = -1 // default if not specified
 
 	if len(args) > 2 {
-		if len(args) < 4 {
+		if len(args) != 4 {
 			return Encode(ErrNumberOfArgs, false)
 		}
 		ttlSec, err := strconv.ParseInt(args[3], 10, 64)
@@ -72,12 +72,12 @@ func cmdTTL(args []string) []byte {
 
 	key := args[0]
 	if dictStore.HasExpired(key) {
-		return Encode(-2, false)
+		return constant.TtlKeyNotExist
 	}
 
 	exp, exist := dictStore.GetExpiry(key)
 	if !exist {
-		return Encode(-1, false)
+		return constant.TtlKeyExistNoExpire
 	}
 
 	ttlMs := exp - uint64(time.Now().UnixMilli())
