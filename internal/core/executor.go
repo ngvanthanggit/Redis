@@ -98,6 +98,14 @@ func ExecuteAndResponse(cmd *Command, connFd int) error {
 		res = cmdGET(cmd.Args)
 	case "TTL":
 		res = cmdTTL(cmd.Args)
+	case "SADD":
+		res = cmdSADD(cmd.Args)
+	case "SREM":
+		res = cmdSREM(cmd.Args)
+	case "SISMEMBER":
+		res = cmdSISMEMBER(cmd.Args)
+	case "SMEMBERS":
+		res = cmdSMEMBERS(cmd.Args)
 	default:
 		res = Encode(fmt.Errorf("ERR unknown command '%s'", cmd.Cmd), false)
 	}
