@@ -106,6 +106,12 @@ func ExecuteAndResponse(cmd *Command, connFd int) error {
 		res = cmdSISMEMBER(cmd.Args)
 	case "SMEMBERS":
 		res = cmdSMEMBERS(cmd.Args)
+	case "ZADD":
+		res = cmdZADD(cmd.Args)
+	case "ZSCORE":
+		res = cmdZSCORE(cmd.Args)
+	case "ZRANK":
+		res = cmdZRANK(cmd.Args)
 	default:
 		res = Encode(fmt.Errorf("ERR unknown command '%s'", cmd.Cmd), false)
 	}
