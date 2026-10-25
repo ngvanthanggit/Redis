@@ -220,6 +220,8 @@ func (t *BPlusTree) splitInternal(node *Node) {
 	}
 }
 
+// the time complexity here is O(n)
+// can try Hash Map to achieve O(1)
 func (t *BPlusTree) GetRank(member string) int {
 	rank := 0
 

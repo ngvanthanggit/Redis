@@ -10,7 +10,7 @@ import (
 
 func cmdZADD(args []string) []byte {
 	if len(args) < 3 {
-		return Encode(errors.New("(error) ERR wrong number of arguments for 'ZADD' command"), false)
+		return Encode(ErrNumberOfArgs, false)
 	}
 	key := args[0]
 	scoreIndex := 1
@@ -60,7 +60,7 @@ func cmdZSCORE(args []string) []byte {
 
 func cmdZRANK(args []string) []byte {
 	if len(args) != 2 {
-		return Encode(errors.New("(error) ERR wrong number of arguments for 'ZRANK' command"), false)
+		return Encode(ErrNumberOfArgs, false)
 	}
 	key, member := args[0], args[1]
 	zset, exist := sortedSetStore[key]
