@@ -90,6 +90,7 @@ func ExecuteAndResponse(cmd *Command, connFd int) error {
 	var res []byte
 
 	switch cmd.Cmd {
+	// normal commands
 	case "PING":
 		res = cmdPING(cmd.Args)
 	case "SET":
@@ -98,6 +99,7 @@ func ExecuteAndResponse(cmd *Command, connFd int) error {
 		res = cmdGET(cmd.Args)
 	case "TTL":
 		res = cmdTTL(cmd.Args)
+	// simple set commands
 	case "SADD":
 		res = cmdSADD(cmd.Args)
 	case "SREM":
@@ -106,12 +108,22 @@ func ExecuteAndResponse(cmd *Command, connFd int) error {
 		res = cmdSISMEMBER(cmd.Args)
 	case "SMEMBERS":
 		res = cmdSMEMBERS(cmd.Args)
+	// sorted set commands
 	case "ZADD":
 		res = cmdZADD(cmd.Args)
 	case "ZSCORE":
 		res = cmdZSCORE(cmd.Args)
 	case "ZRANK":
 		res = cmdZRANK(cmd.Args)
+	// count-min sketch commands
+	case "CMS.INITBYDIM":
+		res = cmdCMSINITBYDIM(cmd.Args)
+	case "CMS.INITBYPROB":
+		res = cmdCMSINITBYPROB(cmd.Args)
+	case "CMS.INCRBY":
+		res = cmdCMSINCRBY(cmd.Args)
+	case "CMS.QUERY":
+		res = cmdCMSQUERY(cmd.Args)
 	default:
 		res = Encode(fmt.Errorf("ERR unknown command '%s'", cmd.Cmd), false)
 	}
