@@ -124,6 +124,13 @@ func ExecuteAndResponse(cmd *Command, connFd int) error {
 		res = cmdCMSINCRBY(cmd.Args)
 	case "CMS.QUERY":
 		res = cmdCMSQUERY(cmd.Args)
+	// bloom filter
+	case "BF.RESERVE":
+		res = cmdBFRESERVE(cmd.Args)
+	case "BF.MADD":
+		res = cmdBFMADD(cmd.Args)
+	case "BF.EXISTS":
+		res = cmdBFEXISTS(cmd.Args)
 	default:
 		res = Encode(fmt.Errorf("ERR unknown command '%s'", cmd.Cmd), false)
 	}

@@ -6,6 +6,7 @@ var dictStore *data_structure.Dict
 var simpleSetStore data_structure.SetStore
 var sortedSetStore data_structure.SortedSetStore
 var cmsStore data_structure.CmsStore
+var bloomStore data_structure.BloomStore
 
 // it's so cool to know that this function will be automatically run
 func init() {
@@ -13,4 +14,5 @@ func init() {
 	simpleSetStore = data_structure.CreateSimpleSetStore()
 	sortedSetStore = data_structure.CreateSortedSetStore()
 	cmsStore = data_structure.CreateCmsStore()
+	bloomStore = data_structure.CreateBloomStore()
 }

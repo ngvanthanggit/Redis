@@ -10,3 +10,6 @@ var ActiveExpireSampleSize = 20
 var ActiveExpireThreshold = 0.1
 var ActiveExpireFrequency = 100 * time.Millisecond
 var BPlusTreeDegress = 4
+
+const BfDefaultInitCapacity = 100
+const BfDefaultErrRate = 0.01
