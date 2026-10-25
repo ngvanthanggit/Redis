@@ -37,6 +37,10 @@ func NewCMS(w uint32, d uint32) *CMS {
 
 // this function is to calculate the dimensions (w, d) of the CMS counter table
 // based on the desired error rate and error probability
+// core math: Estimated Count <= True Count + (error_rate * N)
+// - error rate: maximum size of the over estimation
+// - probability: likelihood that the error will exceed the threshold
+// - N = total number of items
 func CalcCMSDim(errRate float64, errProb float64) (uint32, uint32) {
 	w := uint32(math.Ceil(2.0 / errRate))
 	d := uint32(math.Ceil(math.Log10(errProb) / Log10PointFive))
