@@ -1,6 +1,8 @@
 package data_structure
 
 import (
+	"log"
+	"ngvanthanggit/internal/config"
 	"time"
 )
 
@@ -30,6 +32,10 @@ func (d *Dict) NewObj(key string, value interface{}, ttlMs int64) *Obj {
 		d.UnSetExpiryIfExists(key)
 	}
 	return obj
+}
+
+func (d *Dict) GetDictStore() map[string]*Obj {
+	return d.dictStore
 }
 
 func (d *Dict) GetExpiredDictStore() map[string]uint64 {
@@ -66,22 +72,48 @@ func (d *Dict) HasExpired(key string) bool {
 	return false
 }
 
+func (d *Dict) evictRandom() {
+	log.Println("trigger randome eviction")
+	evictCount := int64(config.EvictionRatio * float64(config.MaxKeyNumber))
+	for k := range d.dictStore {
+		d.Del(k)
+		evictCount--
+		if evictCount == 0 {
+			break
+		}
+	}
+}
+
+func (d *Dict) evict() {
+	switch config.EvictionPolicy {
+	case "allkeys-random":
+		d.evictRandom()
+	}
+}
+
 func (d *Dict) Set(key string, obj *Obj) {
 	d.dictStore[key] = obj
 }
 
 func (d *Dict) Del(key string) bool {
+	log.Printf("Delete key %s", key)
 	if _, exist := d.dictStore[key]; exist {
 		delete(d.dictStore, key)
 		delete(d.expiredDictStore, key)
+		HashKeySpaceStat.Key--
 		return true
 	}
 	return false
 }
 
 func (d *Dict) Get(key string) *Obj {
+	if len(d.dictStore) == config.MaxKeyNumber {
+		d.evict()
+	}
 	v := d.dictStore[key]
-	if v != nil {
+	if v == nil {
+		HashKeySpaceStat.Key++
+	} else {
 		if d.HasExpired(key) {
 			// passive deletion
 			// d.Del(key)

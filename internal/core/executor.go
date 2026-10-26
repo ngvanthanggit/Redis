@@ -1,8 +1,10 @@
 package core
 
 import (
+	"bytes"
 	"fmt"
 	"ngvanthanggit/internal/constant"
+	"ngvanthanggit/internal/data_structure"
 	"strconv"
 	"syscall"
 	"time"
@@ -86,6 +88,15 @@ func cmdTTL(args []string) []byte {
 	return Encode(ttlSec, false)
 }
 
+func cmdINFO(args []string) []byte {
+	var info []byte
+	buf := bytes.NewBuffer(info)
+	buf.WriteString("# Keyspace\r\n")
+	buf.WriteString(fmt.Sprintf("db0:keys=%d, expires=0, avg_ttl=0\r\n", data_structure.HashKeySpaceStat.Key))
+
+	return Encode(buf.String(), false)
+}
+
 func ExecuteAndResponse(cmd *Command, connFd int) error {
 	var res []byte
 
@@ -99,6 +110,8 @@ func ExecuteAndResponse(cmd *Command, connFd int) error {
 		res = cmdGET(cmd.Args)
 	case "TTL":
 		res = cmdTTL(cmd.Args)
+	case "INFO":
+		res = cmdINFO(cmd.Args)
 	// simple set commands
 	case "SADD":
 		res = cmdSADD(cmd.Args)
