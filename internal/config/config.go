@@ -8,3 +8,6 @@ var MaxKeyNumber = 10
 var EvictionRatio = 0.1
 
 var EvictionPolicy string = "allkeys-random"
+
+var EpoolMaxSize = 10
+var EpoolLruSampleSize = 5
