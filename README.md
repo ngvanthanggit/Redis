@@ -2,6 +2,8 @@
 
 I'm building a Redis-style, in-memory server from scratch in Go to understand how Redis works and develop features beyond what standard Redis offers. My goal is to use it in my other personal projects and eventually make it useful to others.
 
+All the code was written by me, up until the time I updated this document.
+
 ## What I've built
 
 - I designed a TCP server around a single event loop, using `epoll` on Linux and `kqueue` on macOS.
@@ -92,3 +94,10 @@ In these runs, the event-loop server achieved **24.35% higher throughput** and *
 This comparison reflects these specific implementations and the local workload. The main server parses and executes commands, while the TCP example echoes input, so the results do not isolate the effect of the concurrency model. Each connection in the TCP example uses a Go goroutine, which is not necessarily a dedicated operating-system thread.
 
 The full measurements are in my [I/O benchmark report](docs/io%20models/benchmark.md). For more on the architecture, data structures, and implementation, see [PROJECT_DETAILS.md](docs/PROJECT_DETAILS.md).
+
+## References
+
+I researched and referred to the official Redis documentation and source code while building this project:
+
+- [Official Redis documentation](https://redis.io/docs/latest/)
+- [Redis source code](https://github.com/redis/redis)
