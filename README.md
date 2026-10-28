@@ -1,4 +1,4 @@
-# Redis
+# Redis Bloom
 
 I'm building a Redis-style, in-memory server from scratch in Go to understand how Redis works and develop features beyond what standard Redis offers. My goal is to use it in my other personal projects and eventually make it useful to others.
 
